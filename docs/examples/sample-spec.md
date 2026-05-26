@@ -87,9 +87,9 @@ describe("Synthetic Login Screen", () => {
     it("[R1] When the user clicks the Sign in button, the system shall submit the login credentials.", () => {
       // pattern: event
       // source: 2:4/Sign in
-      // arrange:
-      // act:
-      // assert:
+      // arrange: set up the state where the trigger can fire
+      // act:     trigger the event described before "shall"
+      // assert:  verify the post-condition described after "shall"
       throw new Error("TODO: implement test for R1");
     });
   });
@@ -98,9 +98,9 @@ describe("Synthetic Login Screen", () => {
     it("[R2] When the user enters invalid credentials, the system shall display the Error: invalid credentials text.", () => {
       // pattern: event
       // source: 2:6/Error: invalid credentials
-      // arrange:
-      // act:
-      // assert:
+      // arrange: set up the state where the trigger can fire
+      // act:     trigger the event described before "shall"
+      // assert:  verify the post-condition described after "shall"
       throw new Error("TODO: implement test for R2");
     });
   });
@@ -109,9 +109,16 @@ describe("Synthetic Login Screen", () => {
 });
 ```
 
+The arrange / act / assert comments are tailored to the EARS pattern, so
+each `it()` block tells the human filling it in exactly what shape the
+test needs — `event` pattern (above) walks through "trigger → post-
+condition"; `unwanted` pattern walks through "set up precondition →
+trigger the 'If' condition → verify recovery"; etc. See
+[ADR-0006](../adr/0006-test-framework.md) for the per-pattern scaffold
+rationale.
+
 Why TODO-throwing? A passing auto-generated test would be a lie; making
-each one fail loudly preserves the spec ↔ test linkage. See
-[ADR-0006](../adr/0006-test-framework.md) for the framework rationale.
+each one fail loudly preserves the spec ↔ test linkage.
 
 ## End-to-end one-liner
 
@@ -131,8 +138,9 @@ and generated test land in `docs/private/fixtures/` (gitignored).
 - Decide *what* the validation rule should be (e.g., the model says
   "invalid credentials" because the design names that error; it does not
   prescribe password length)
-- Cross-reference design tokens or component libraries — that's M3+ scope
-  once `library_content:read` is added to the token
+- Cross-reference design tokens or component libraries — that is out of
+  scope for v0.1 and would require widening the Figma token to
+  `library_content:read`
 
 ## Performance
 
@@ -143,4 +151,5 @@ On a consumer laptop CPU:
 - Memory: ~4 GB RAM for `gemma3:4b` Q4 quantisation
 
 Switch to a smaller model (`gemma3:2b`) or a GPU-equipped machine for
-faster iteration during M4/M5 development.
+faster iteration when developing against the spec / lint / test-gen
+stages.
