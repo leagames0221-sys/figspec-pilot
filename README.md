@@ -45,7 +45,7 @@ the previous one".
 
 The end-to-end demo run on a synthetic Login screen finishes in about 30 s
 on CPU (3 requirements, 0 lint findings, 39-line vitest file). The unit
-suite is 47/47 green. See the video at the top for a narrated walkthrough.
+suite is 51/51 green. See the video at the top for a narrated walkthrough.
 
 ## What it does
 
