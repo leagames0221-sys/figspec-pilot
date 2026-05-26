@@ -1,0 +1,28 @@
+{
+  "name": "figspec-pilot",
+  "version": "0.1.0",
+  "description": "Figma -> EARS spec + vitest test + lint, via MCP. Runs locally with Ollama.",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "server": "tsx --env-file=.env src/server.ts",
+    "verify": "tsx --env-file=.env src/verify-server.ts",
+    "verify:ears": "tsx --env-file=.env src/verify-ears.ts",
+    "demo": "tsx --env-file=.env src/demo.ts",
+    "test:unit": "tsx --test src/*.test.ts",
+    "audit": "npm audit --audit-level=moderate"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.5",
+    "tsx": "4.22.3",
+    "typescript": "5.7.3"
+  }
+}

@@ -1,0 +1,23 @@
+# PRIVATE — LOCAL only, never commit
+docs/private/
+.env
+.env.*
+!.env.example
+
+# AI dev workflow infra (LOCAL only — separate from portfolio surface)
+.claude/
+CLAUDE.md
+
+# Node
+node_modules/
+dist/
+*.log
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Video build intermediates only (final MP4 = out_video/figspec_pilot_demo.mp4 is tracked)
+out_video/_temp/

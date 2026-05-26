@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>figspec-pilot demo</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --fg: #c9d1d9;
+      --prompt: #58a6ff;
+      --cmd: #ffffff;
+      --dim: #8b949e;
+      --ok: #3fb950;
+      --warn: #d29922;
+      --err: #f85149;
+      --accent: #79c0ff;
+      --title: #f0f6fc;
+      --pillar: #21262d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Cascadia Mono", "Consolas", "BIZ UDGothic", monospace;
+      font-size: 22px;
+      line-height: 1.55;
+      padding: 60px 80px;
+      min-height: 100vh;
+    }
+    .scene { display: none; }
+    .scene.visible { display: block; animation: fadein 0.25s ease-in; }
+    @keyframes fadein { from { opacity: 0.3 } to { opacity: 1 } }
+    h1 { color: var(--title); font-size: 46px; margin: 0 0 24px; }
+    h2 { color: var(--accent); font-size: 28px; margin: 0 0 18px; }
+    .tagline { color: var(--dim); font-size: 26px; margin-bottom: 30px; }
+    .prompt { color: var(--prompt); }
+    .cmd { color: var(--cmd); }
+    .dim { color: var(--dim); }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .err { color: var(--err); }
+    .req {
+      background: var(--pillar);
+      padding: 18px 24px;
+      margin: 12px 0;
+      border-left: 4px solid var(--accent);
+      border-radius: 4px;
+    }
+    .req-id { color: var(--accent); font-weight: bold; }
+    .req-pattern { color: var(--dim); margin-left: 12px; }
+    .req-text { color: var(--fg); margin-top: 6px; display: block; }
+    .req-source { color: var(--dim); font-size: 18px; margin-top: 6px; display: block; }
+    .lint-line { padding: 4px 0; }
+    .adr {
+      background: var(--pillar);
+      padding: 12px 20px;
+      margin: 8px 0;
+      border-radius: 4px;
+      font-size: 20px;
+    }
+    pre {
+      background: #161b22;
+      padding: 20px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 18px;
+      margin: 0;
+    }
+    .footer {
+      color: var(--dim);
+      font-size: 18px;
+      margin-top: 24px;
+    }
+    .pill {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--pillar);
+      border-radius: 12px;
+      margin-right: 8px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+<div id="S1" class="scene">
+  <h1>figspec-pilot</h1>
+  <div class="tagline">Figma design → EARS spec + vitest tests, via MCP and a local Ollama model.</div>
+  <div>
+    <span class="pill">MCP server</span>
+    <span class="pill">Ollama gemma3:4b</span>
+    <span class="pill">EARS grammar</span>
+    <span class="pill">vitest</span>
+  </div>
+</div>
+
+<div id="S2" class="scene">
+  <h2>Four MCP tools, one pipeline</h2>
+  <pre>  figma_get_file     fetch a Figma file as a depth-capped node tree
+  extract_spec       node tree → EARS-formatted requirements (LLM)
+  lint_spec          6 deterministic rules over the EARS output
+  generate_tests     EARS → vitest skeleton, one it() per requirement</pre>
+  <div class="footer">Stdio transport. Token never leaves the process. No LLM API key required.</div>
+</div>
+
+<div id="S3" class="scene">
+  <h2>Run the end-to-end demo</h2>
+  <pre><span class="prompt">$</span> <span class="cmd">npm run demo</span></pre>
+  <div class="footer">Synthetic Login screen input, no Figma API call, deterministic lint, one vitest file out.</div>
+</div>
+
+<div id="S4" class="scene">
+  <h2>[1/3] extract_spec — calling the LLM</h2>
+  <pre>  Backend: <span class="ok">ollama</span> / model: <span class="ok">gemma3:4b</span>
+  Input  : Synthetic Login Screen (9 nodes)
+  ...generating EARS requirements...</pre>
+</div>
+
+<div id="S5" class="scene">
+  <h2>3 EARS requirements generated</h2>
+  <div class="req">
+    <span class="req-id">R1</span><span class="req-pattern">(event)</span>
+    <span class="req-text">When the user clicks the Sign in button, the system shall submit the login credentials.</span>
+    <span class="req-source">source: 2:4 / Sign in</span>
+  </div>
+  <div class="req">
+    <span class="req-id">R2</span><span class="req-pattern">(event)</span>
+    <span class="req-text">When the user enters invalid credentials, the system shall display the error message.</span>
+    <span class="req-source">source: 2:6 / Error: invalid credentials</span>
+  </div>
+  <div class="req">
+    <span class="req-id">R3</span><span class="req-pattern">(event)</span>
+    <span class="req-text">When the user clicks the Forgot password link, the system shall open a password reset flow.</span>
+    <span class="req-source">source: 2:5 / Forgot password?</span>
+  </div>
+</div>
+
+<div id="S6" class="scene">
+  <h2>[2/3] lint_spec — six deterministic rules</h2>
+  <pre>  R-001 EARS-KEYWORD          checks: starts with The / When / While / Where / If
+  R-002 EARS-PATTERN-MATCH    checks: pattern field matches the leading keyword
+  R-003 EARS-SHALL-PRESENT    checks: uses the modal verb "shall"
+  R-004 EARS-NO-AMBIGUITY     checks: no hedge words (English + Japanese)
+  R-005 EARS-SOURCE-TRACEABLE checks: at least one source node referenced
+  R-006 EARS-SINGLE-ACTION    checks: exactly one "shall" per requirement</pre>
+</div>
+
+<div id="S7" class="scene">
+  <h2>Lint pass — 3 clean, 0 errors, 0 warnings</h2>
+  <pre>  R1 . . . . . . . <span class="ok">PASS</span>
+  R2 . . . . . . . <span class="ok">PASS</span>
+  R3 . . . . . . . <span class="ok">PASS</span>
+
+  totalChecked: 3
+  errorCount  : <span class="ok">0</span>
+  warningCount: <span class="ok">0</span>
+  passCount   : <span class="ok">3</span></pre>
+</div>
+
+<div id="S8" class="scene">
+  <h2>[3/3] generate_tests — vitest skeleton</h2>
+  <pre><span class="dim">// AUTOGENERATED by figspec-pilot M5 (test-gen.ts).</span>
+<span class="dim">// One it() per EARS requirement. Tests throw TODO until filled in.</span>
+import { describe, it } from <span class="ok">"vitest"</span>;
+
+describe(<span class="ok">"Synthetic Login Screen"</span>, () =&gt; {
+  describe(<span class="ok">"Sign in"</span>, () =&gt; {
+    it(<span class="ok">"[R1] When the user clicks the Sign in button, ..."</span>, () =&gt; {
+      <span class="dim">// pattern: event</span>
+      <span class="dim">// source: 2:4 / Sign in</span>
+      throw new Error(<span class="ok">"TODO: implement test for R1"</span>);
+    });
+  });</pre>
+</div>
+
+<div id="S9" class="scene">
+  <h2>One it() per requirement, TODO-throwing on purpose</h2>
+  <pre>  describe(<span class="ok">"Error: invalid credentials"</span>, () =&gt; {
+    it(<span class="ok">"[R2] When the user enters invalid credentials, ..."</span>, () =&gt; {
+      throw new Error(<span class="ok">"TODO: implement test for R2"</span>);
+    });
+  });
+  describe(<span class="ok">"Forgot password?"</span>, () =&gt; {
+    it(<span class="ok">"[R3] When the user clicks the Forgot password link, ..."</span>, () =&gt; {
+      throw new Error(<span class="ok">"TODO: implement test for R3"</span>);
+    });
+  });
+});</pre>
+  <div class="footer">A passing auto-generated test would be a lie. We make each one fail loudly.</div>
+</div>
+
+<div id="S10" class="scene">
+  <h2>End-to-end PASS</h2>
+  <pre>  Transcript: docs/private/fixtures/demo-2026-05-26.log
+  Test file : docs/private/fixtures/generated.test.ts
+
+  <span class="ok">PASS: M5 end-to-end pipeline (Figma synthetic → EARS → lint → vitest)</span></pre>
+  <div class="footer">~30 seconds on a consumer laptop CPU. One Ollama call. No Figma API call.</div>
+</div>
+
+<div id="S11" class="scene">
+  <h2>Seven design decisions, each as a Nygard ADR</h2>
+  <div class="adr">ADR-0001 — Why an MCP server, not a Figma plugin</div>
+  <div class="adr">ADR-0002 — Use stdio transport, defer HTTP / SSE</div>
+  <div class="adr">ADR-0003 — Figma API rate-limit and token-handling strategy</div>
+  <div class="adr">ADR-0004 — Use EARS, not Gherkin, as the requirements grammar</div>
+</div>
+
+<div id="S12" class="scene">
+  <h2>...continued</h2>
+  <div class="adr">ADR-0005 — Lint rule selection — six deterministic rules over EARS</div>
+  <div class="adr">ADR-0006 — Generate vitest skeletons, not Jest / node:test / AVA</div>
+  <div class="adr">ADR-0007 — Ollama as the default LLM backend, Claude as opt-in</div>
+  <div class="footer">Each ADR has Context / Decision / Consequences / Tradeoffs sections.</div>
+</div>
+
+<div id="S13" class="scene">
+  <h2>Honest disclosure — what the pipeline does not do</h2>
+  <pre>  - <span class="warn">LLM hallucination is caught by lint, not prevented</span>
+  - <span class="warn">Local model quality is bounded by gemma3:4b on CPU</span>
+  - <span class="warn">Generated tests are TODO stubs — a human fills in arrange / act / assert</span>
+  - <span class="warn">Figma API budget is 1 call per verify; M3-M5 dev uses cached fixtures</span>
+  - <span class="warn">stdio transport only; no remote / browser MCP clients in v0.1</span></pre>
+</div>
+
+<div id="S14" class="scene">
+  <h2>figspec-pilot</h2>
+  <div class="tagline">MIT licensed. No credit card required. Runs on a consumer laptop.</div>
+  <pre>  npm install
+  ollama pull gemma3:4b
+  npm run demo</pre>
+  <div class="footer">github.com/leagames0221-sys/figspec-pilot</div>
+</div>
+
+<script>
+  // Helper exposed to Playwright: show only the scene with the given id.
+  // Called from produce_video.py via page.evaluate("show('S1')").
+  window.show = function (id) {
+    document.querySelectorAll(".scene").forEach(function (el) {
+      el.classList.remove("visible");
+    });
+    var el = document.getElementById(id);
+    if (el) el.classList.add("visible");
+  };
+  // Default to S1 on first paint.
+  window.show("S1");
+</script>
+
+</body>
+</html>

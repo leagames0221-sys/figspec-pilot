@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "source": "Figma official community file 'Figma basics' (fileKey: gIO4gfdWjMcsup0p4Ntu9i)",
+    "captured": "2026-05-26T06:37:17Z",
+    "captured_by": "npm run verify (depth=1, one real GET /v1/files/:key call)",
+    "purpose": "evidence that the MCP server round-trips against a real Figma file, not just the synthetic Login screen used by `npm run demo`"
+  },
+  "fileName": "Figma basics",
+  "lastModified": "2026-05-26T06:37:17Z",
+  "root": {
+    "id": "0:0",
+    "name": "Document",
+    "type": "DOCUMENT",
+    "children": [
+      {
+        "id": "0:1",
+        "name": "Figma Basics",
+        "type": "CANVAS"
+      }
+    ]
+  }
+}
