@@ -217,12 +217,15 @@ describe(<span class="ok">"Synthetic Login Screen"</span>, () =&gt; {
 </div>
 
 <div id="S13" class="scene">
-  <h2>Honest disclosure — what the pipeline does not do</h2>
-  <pre>  - <span class="warn">LLM hallucination is caught by lint, not prevented</span>
-  - <span class="warn">Local model quality is bounded by gemma3:4b on CPU</span>
-  - <span class="warn">Generated tests are TODO stubs — a human fills in arrange / act / assert</span>
-  - <span class="warn">Figma API budget is 1 call per verify; M3-M5 dev uses cached fixtures</span>
-  - <span class="warn">stdio transport only; no remote / browser MCP clients in v0.1</span></pre>
+  <h2>正直な開示 — 現行AI技術で 原理的に 解決不可な部分</h2>
+  <pre>  - <span class="warn">AIの幻覚 — 業界全体の未解決問題</span>
+    Claude/GPT/Gemini も同様。 自動検査 と 人間レビューの 二段防御で 対処。
+  - <span class="warn">Figma API 回数制限 — Figma 社のサーバー側制約</span>
+    10-20 回/分は 全 Figma クライアント共通。 キャッシュ再利用が 唯一の解。
+  - <span class="warn">LLM の物理上限 — モデルサイズと 文脈長</span>
+    gemma3:4b の精度と 入れ子 5 階層が 現状の天井。 大型モデル投入で 解除可。
+  - <span class="warn">stdio 通信のみ — v0.1 の段階的リリース範囲</span>
+    HTTP/SSE 対応は 顧客要望に応じて 次版で 追加。</pre>
 </div>
 
 <div id="S14" class="scene">

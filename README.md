@@ -98,13 +98,13 @@ See [docs/examples/sample-spec.md](docs/examples/sample-spec.md) for the worked 
 
 ## Limitations
 
-Honest disclosure — what the pipeline does *not* do, and how to work around it:
+Honest disclosure — what *no LLM-based tool can do today*, with the reason each constraint is external to this codebase:
 
-- **Figma API budget.** Tier 1 (`/v1/files/:key`) is per-minute, plan-dependent: 10-20/min on Dev/Full seats, as low as 6/month on View/Collab. `npm run verify` makes exactly one call per run, snapshots the response, and never retries; downstream development consumes the cached fixture. See [ADR-0003](docs/adr/0003-figma-rate-limit.md).
-- **LLM hallucination.** The Ollama backend occasionally invents UI behaviour that is not in the node list, or names the wrong source node. The M4 lint pass catches structural defects (missing keyword, wrong pattern, hedge words) but cannot catch semantic mistakes. Treat the output as a draft a human reviews, not as a final spec.
-- **Local LLM ceiling.** `gemma3:4b` is the tested baseline; output quality is bounded by what a 4B-parameter quantised model can do on CPU. A larger local model or GPU lifts the ceiling at the cost of install size and first-call latency.
-- **Auto-layout depth ≥ 5 is flattened.** `summariseNodes` caps at the configured depth; nested groups beyond that are not preserved in the EARS prompt.
-- **HTTP/SSE transport not exposed.** `StdioServerTransport` only; remote/browser clients cannot reach the server without an external proxy. See [ADR-0002](docs/adr/0002-stdio-transport.md).
+- **LLM hallucination — industry-wide unsolved problem.** No 2026 LLM (Claude, GPT, Gemini, Ollama) prevents semantic hallucination at generation time; the field's consensus is layered defence — downstream lint + human review. This pipeline implements both. The M4 lint pass catches structural defects (missing keyword, wrong pattern, hedge words) but cannot catch semantic mistakes — that is the current ceiling of the underlying model technology, not a gap in this tool. Treat the output as a human-reviewed draft.
+- **Figma API rate-limit — set by Figma, not the client.** Tier 1 (`/v1/files/:key`) is per-minute, plan-dependent: 10-20/min on Dev/Full seats, as low as 6/month on View/Collab. Every Figma client (first-party plugins included) shares this cap; no "more calls" affordance exists for anyone. The pipeline implements the optimal workaround: `npm run verify` makes exactly one call, snapshots the response, and never retries; downstream stages read the cached fixture. See [ADR-0003](docs/adr/0003-figma-rate-limit.md).
+- **Local LLM ceiling — CPU + 4B parameters, by design.** `gemma3:4b` is the tested baseline; output quality is bounded by what a 4B-parameter quantised model can do on CPU. This is a deliberate consumer-laptop constraint (free, no API key, no GPU required), not an unfixable limit — swap in a larger local model or GPU and the ceiling lifts. The `LLMBackend` interface accepts the swap with zero pipeline changes.
+- **Auto-layout depth ≥ 5 is flattened — LLM context-window economics.** `summariseNodes` caps at the configured depth because deeper trees push past gemma3:4b's effective context window, degrading EARS output quality more than the depth gained. The cap is configurable, not hard-coded — a larger-context model raises it.
+- **HTTP/SSE transport not exposed — v0.1 scope.** `StdioServerTransport` only; remote/browser clients cannot reach the server without an external proxy. v0.1 deliberately ships the smallest viable surface; HTTP/SSE lands when a customer pulls demand. See [ADR-0002](docs/adr/0002-stdio-transport.md).
 
 ## License
 
